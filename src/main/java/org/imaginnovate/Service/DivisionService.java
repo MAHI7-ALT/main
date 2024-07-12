@@ -48,26 +48,31 @@ public class DivisionService {
                         .build();
             }
         }
-
-          if (divisionsDto.getCreatedBy() != null) {
-        Employee createdBy = employeeRepo.findByIdOptional(divisionsDto.getCreatedBy()).orElse(null);
-        if (createdBy == null) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity("CreatedBy employee with ID " + divisionsDto.getCreatedBy() + " not found")
-                    .build();
+    
+        if (divisionsDto.getCreatedBy() != null) {
+            Employee createdBy = employeeRepo.findByIdOptional(divisionsDto.getCreatedBy()).orElse(null);
+            if (createdBy == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("CreatedBy employee with ID " + divisionsDto.getCreatedBy() + " not found")
+                        .build();
+            }
+    
+            boolean canApprove = employeeRepo.canApproveTimesheets(divisionsDto.getCreatedBy());
+            if (!canApprove) {
+                return Response.status(Response.Status.FORBIDDEN)
+                        .entity("Employee with ID " + divisionsDto.getCreatedBy() + " does not have createdBy rights")
+                        .build();
+            }
+        } else {
+            Employee reportsToEmployee = employeeRepo.findById(divisionsDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                divisionsDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
-
-        boolean canApprove = employeeRepo.canApproveTimesheets(divisionsDto.getCreatedBy());
-        if (!canApprove) {
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity("Employee with ID " + divisionsDto.getCreatedBy() + " does not have createdBy rights")
-                    .build();
-        }
-    }
-
+    
         Division division = new Division();
         division.name = divisionsDto.name;
-
+    
         if (divisionsDto.getParentId() != null && divisionsDto.getParentId() != 0) {
             Division parentDivision = divisionsRepo.findById(divisionsDto.getParentId());
             if (parentDivision != null) {
@@ -78,9 +83,11 @@ public class DivisionService {
                         .build();
             }
         }
-        
+    
+        Employee createdBy = employeeRepo.findById(divisionsDto.getCreatedBy());
+        division.createdBy = createdBy;
         division.createdOn = divisionsDto.getCreatedOn();
-
+    
         divisionsRepo.persist(division);
         divisionsDto.setId(division.id);
         divisionsDto.setParentId(division.parentId != null ? division.parentId.id : null);
@@ -90,12 +97,12 @@ public class DivisionService {
         divisionsDto.setModifiedOn(division.modifiedOn);
         divisionsDto.setDeletedBy(division.deletedBy != null ? division.deletedBy.id : null);
         divisionsDto.setDeletedOn(division.deletedOn);
-
+    
         return Response.status(Response.Status.CREATED)
                 .entity(divisionsDto)
                 .build();
     }
-
+    
     public Response getDivisionById(int id) {
         try {
             Division division = divisionsRepo.findById(id);

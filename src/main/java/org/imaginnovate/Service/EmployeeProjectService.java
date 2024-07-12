@@ -78,6 +78,11 @@ public class EmployeeProjectService {
                             .entity("Employee with ID " + employeeProjectsDto.getCreatedBy() + " does not have createdBy rights")
                             .build();
                 }
+            }else {
+                Employee reportsToEmployee = employeesRepo.findById(employeeProjectsDto.getCreatedBy());
+                if (reportsToEmployee != null) {
+                    employeeProjectsDto.setCreatedBy(reportsToEmployee.id);
+                }
             }
 
             EmployeeProject employeeProjects = new EmployeeProject();

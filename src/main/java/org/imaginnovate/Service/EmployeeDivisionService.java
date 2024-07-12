@@ -41,33 +41,37 @@ public class EmployeeDivisionService {
     }
 
     @Transactional
-    public Response createEmployeeDivision(EmployeeDivisionDto employeeDivisionsDto) {
-        try {
+public Response createEmployeeDivision(EmployeeDivisionDto employeeDivisionsDto) {
+    try {
         if (employeeDivisionsDto.getEmployeeId() == 0 || employeeDivisionsDto.getDivisionId() == 0) {
             Division division = divisionsRepo.findById(employeeDivisionsDto.getDivisionId());
             if (division == null) {
                 return Response.status(Response.Status.CONFLICT).entity("Division not found").build();
             }
         }
+
         Employee employee = employeesRepo.findById(employeeDivisionsDto.getEmployeeId());
         if (employee == null) {
             return Response.status(Response.Status.CONFLICT).entity("Employee not found").build();
         }
 
-        boolean exists = employeeDivisionsRepo.existsByDivisionIdAndEmployeeId(employeeDivisionsDto.getDivisionId(),
-                employeeDivisionsDto.getEmployeeId());
+        boolean exists = employeeDivisionsRepo.existsByDivisionIdAndEmployeeId(
+                employeeDivisionsDto.getDivisionId(),
+                employeeDivisionsDto.getEmployeeId()
+        );
         if (exists) {
             return Response.status(Response.Status.CONFLICT).entity("Employee Division already exists").build();
         }
 
+        Employee createdBy = null;
         if (employeeDivisionsDto.getCreatedBy() != null) {
-            Employee createdBy = employeesRepo.findByIdOptional(employeeDivisionsDto.getCreatedBy()).orElse(null);
+            createdBy = employeesRepo.findByIdOptional(employeeDivisionsDto.getCreatedBy()).orElse(null);
             if (createdBy == null) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("CreatedBy employee with ID " + employeeDivisionsDto.getCreatedBy() + " not found")
                         .build();
             }
-    
+
             boolean canApprove = employeesRepo.canApproveTimesheets(employeeDivisionsDto.getCreatedBy());
             if (!canApprove) {
                 return Response.status(Response.Status.FORBIDDEN)
@@ -81,16 +85,18 @@ public class EmployeeDivisionService {
         employeeDivision.divisionId = divisionsRepo.findById(employeeDivisionsDto.getDivisionId());
         employeeDivision.primaryDivision = employeeDivisionsDto.getPrimaryDivision();
         employeeDivision.canApproveTimesheets = employeeDivisionsDto.getCanApproveTimesheets();
+        employeeDivision.createdBy = createdBy; // Set the createdBy field
         employeeDivision.createdOn = employeeDivisionsDto.getCreatedOn();
+
         employeeDivisionsRepo.persist(employeeDivision);
         employeeDivisionsDto.setId(employeeDivision.id);
 
         return Response.status(Response.Status.CREATED).entity(employeeDivisionsDto).build();
-        } catch (Exception e) {
-        return
-        Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Internal Server error").build();
-        }
+    } catch (Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Internal Server error").build();
     }
+}
+
 
     public Response getEmployeeDivisionById(int id) {
         try {

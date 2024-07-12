@@ -46,8 +46,9 @@ public class EmployeeService {
                         .build();
             }
     
+            Employee reportsTo = null;
             if (employeeDto.getReportsToId() != null) {
-                Employee reportsTo = findEmployeeByIdOptional(employeeDto.getReportsToId());
+                reportsTo = findEmployeeByIdOptional(employeeDto.getReportsToId());
                 if (reportsTo == null) {
                     return Response.status(Response.Status.NOT_FOUND)
                             .entity("ReportsTo employee with ID " + employeeDto.getReportsToId() + " not found")
@@ -55,8 +56,9 @@ public class EmployeeService {
                 }
             }
     
+            Employee createdBy = null;
             if (employeeDto.getCreatedBy() != null) {
-                Employee createdBy = findEmployeeByIdOptional(employeeDto.getCreatedBy());
+                createdBy = findEmployeeByIdOptional(employeeDto.getCreatedBy());
                 if (createdBy == null) {
                     return Response.status(Response.Status.NOT_FOUND)
                             .entity("CreatedBy employee with ID " + employeeDto.getCreatedBy() + " not found")
@@ -69,9 +71,19 @@ public class EmployeeService {
                             .entity("Employee with ID " + employeeDto.getCreatedBy() + " does not have createdBy rights")
                             .build();
                 }
+            }else {
+                Employee reportsToEmployee = employeeRepo.findById(employeeDto.getCreatedBy());
+                if (reportsToEmployee != null) {
+                    employeeDto.setCreatedBy(reportsToEmployee.id);
+                }
             }
     
             Employee employee = convertToEntity(employeeDto);
+    
+            // Set the retrieved entities
+            employee.reportsToId = reportsTo;
+            employee.createdBy = createdBy;
+    
             employeeRepo.persist(employee);
             return Response.status(Response.Status.CREATED)
                     .entity(convertToDto(employee))

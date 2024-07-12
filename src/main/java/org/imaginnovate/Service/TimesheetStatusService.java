@@ -59,6 +59,7 @@ public class TimesheetStatusService {
                             .build();
                 }
             }
+
             timesheetStatus.createdOn = timesheetStatusDto.createdOn;
             timesheetStatusRepo.persist(timesheetStatus);
             timesheetStatusDto.setId(timesheetStatus.id);
