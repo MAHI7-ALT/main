@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.imaginnovate.Entity.Employee;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,21 +14,21 @@ import jakarta.persistence.MappedSuperclass;
 @MappedSuperclass
 public class BaseAuditFields extends PanacheEntityBase {
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "created_by")
     public Employee createdBy;
 
     @Column(name = "created_on", nullable = false)
     public LocalDateTime createdOn;
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "modified_by")
     public Employee modifiedBy;
 
     @Column(name = "modified_on")
     public LocalDateTime modifiedOn;
 
-    @ManyToOne
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinColumn(name = "deleted_by")
     public Employee deletedBy;
 
@@ -37,7 +38,6 @@ public class BaseAuditFields extends PanacheEntityBase {
     public BaseAuditFields() {
     }
 
-
     public BaseAuditFields(Employee createdBy, LocalDateTime createdOn, Employee modifiedBy, LocalDateTime modifiedOn, Employee deletedBy, LocalDateTime deletedOn) {
         this.createdBy = createdBy;
         this.createdOn = createdOn;
@@ -46,5 +46,4 @@ public class BaseAuditFields extends PanacheEntityBase {
         this.deletedBy = deletedBy;
         this.deletedOn = deletedOn;
     }
-
 }

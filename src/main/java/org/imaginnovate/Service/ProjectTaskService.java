@@ -77,6 +77,11 @@ public class ProjectTaskService {
                         .entity("Employee with ID " + projectTasksDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(projectTasksDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                projectTasksDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
 
         ProjectTask newProjectTask = new ProjectTask();

@@ -308,6 +308,11 @@ public class TimesheetService {
                         .entity("Employee with ID " + timesheetDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(timesheetDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                timesheetDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
     
         updateFromDto(timesheet, timesheetDto, approvingEmployee);
@@ -413,6 +418,11 @@ public class TimesheetService {
                         .entity("Employee with ID " + timesheetDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(timesheetDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                timesheetDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
 
         updateTimesheetDto(timesheet, timesheetDto, employee);
@@ -463,6 +473,11 @@ public class TimesheetService {
                         .entity("Employee with ID " + timesheetDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(timesheetDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                timesheetDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
         updateTimesheetDto(timesheet, timesheetDto, employee);
         timesheetRepo.persist(timesheet);
@@ -512,7 +527,13 @@ public class TimesheetService {
                         .entity("Employee with ID " + timesheetDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(timesheetDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                timesheetDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
+
         updateTimesheetDto(timesheet, timesheetDto, employee);
         timesheetRepo.persist(timesheet);
         timesheetDto.setId(timesheet.id);
@@ -550,6 +571,11 @@ public class TimesheetService {
                 return Response.status(Response.Status.FORBIDDEN)
                         .entity("Employee with ID " + timesheetDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
+            }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(timesheetDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                timesheetDto.setCreatedBy(reportsToEmployee.id);
             }
         }
 

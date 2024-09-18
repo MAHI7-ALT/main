@@ -79,13 +79,20 @@ public class ProjectService {
                             .entity("Employee with ID " + projectDto.getCreatedBy() + " does not have createdBy rights")
                             .build();
                 }
+            }else {
+                Employee reportsToEmployee = employeesRepo.findById(projectDto.getCreatedBy());
+                if (reportsToEmployee != null) {
+                    projectDto.setCreatedBy(reportsToEmployee.id);
+                }
             }
+
 
             project.createdOn = projectDto.getCreatedOn();
             project.modifiedOn = projectDto.getModifiedOn();
             project.deletedOn = projectDto.getDeletedOn();
             projectsRepo.persist(project);
             projectDto.setId(project.id);
+            projectDto.setCreatedBy(project.createdBy.id);
 
             return Response.status(Response.Status.CREATED).entity(projectDto).build();
         } catch (Exception e) {

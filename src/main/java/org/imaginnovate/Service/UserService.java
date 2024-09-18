@@ -75,6 +75,11 @@ public class UserService {
                         .entity("Employee with ID " + usersDto.getCreatedBy() + " does not have createdBy rights")
                         .build();
             }
+        }else {
+            Employee reportsToEmployee = employeesRepo.findById(usersDto.getCreatedBy());
+            if (reportsToEmployee != null) {
+                usersDto.setCreatedBy(reportsToEmployee.id);
+            }
         }
         user.createdOn = usersDto.getCreatedOn();
         user.modifiedOn = usersDto.getModifiedOn();

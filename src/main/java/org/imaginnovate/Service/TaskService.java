@@ -63,6 +63,11 @@ public class TaskService {
                             .entity("Employee with ID " + taskDto.getCreatedBy() + " does not have createdBy rights")
                             .build();
                 }
+            }else {
+                Employee reportsToEmployee = employeesRepo.findById(taskDto.getCreatedBy());
+                if (reportsToEmployee != null) {
+                    taskDto.setCreatedBy(reportsToEmployee.id);
+                }
             }
 
             task.createdOn = taskDto.getCreatedOn();
